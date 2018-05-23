@@ -20,16 +20,14 @@ Predict likelihood of the next safety incident being a recordable incident using
    - 562 original features
 
 ## Approach
-Implement a test train split on the dataset and apply Logistical Regression to model the likelihood the next data entry point is a recordable incident. We will classify the data as either recordable or non-recordable and utilize the ratios from Heinrich's Accident Pyramid theory applied to BP Lower 48 Safety entries.
-
-?? Is this project really a [Multinomial Time Series Regression](https://www.hlp.rochester.edu/resources/WOMM/BarrFrank.pdf) problem?
+Implement [Multinomial Time Series Regression](https://www.hlp.rochester.edu/resources/WOMM/BarrFrank.pdf) to model the likelihood the next data entry point is a recordable incident. We will classify the data as either recordable or non-recordable and utilize the ratios from Heinrich's Accident Pyramid theory applied to BP Lower 48 Safety entries.
 
 ## Project Progression
 1. Feature selection and creation done.
 1. Dataset loaded into Pandas.
-1. ???
+1. Research has begun on algorithm details.
 
-#### Model Pipeline Code
+<!-- #### Model Pipeline Code
     ```
-    My PipeLine    
-    ```
+    TBD    
+    ``` -->
