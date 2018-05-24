@@ -3,6 +3,7 @@ import numpy as np
 import os
 import matplotlib.pyplot as plt
 from sklearn.preprocessing import LabelEncoder,OneHotEncoder, Binarizer
+import MyFunctions
 
 #file locations
 current_dir = os.path.realpath(".")
@@ -12,7 +13,7 @@ dataheaderfile = os.path.join(data_folder,'CapstoneDataHeaders.csv')
 
 #Read in data files.
 df_headers = list(pd.read_csv(dataheaderfile))
-df = pd.read_csv(datafile,names = df_headers)
+df = pd.read_csv(datafile,names = df_headers, low_memory = False)
 
 #Trim data table
 useful_columns = ['BusinessUnit','eventOccurredDate','companyInvolved','operationOrDevelopment'
@@ -54,15 +55,44 @@ BUMatrix = BUMatrix[useful_columns]
 
 
 BUMatrix['eventOccurredDate'] = pd.to_datetime(df['eventOccurredDate']).dt.date
-BUMatrix = BUMatrix.groupby(BUMatrix.eventOccurredDate).sum()
+#BUMatrix = BUMatrix.groupby(BUMatrix.eventOccurredDate).sum()
+BUMatrix = BUMatrix.groupby([BUMatrix.eventOccurredDate,BUMatrix.BusinessUnit]).sum()
 BUMatrix = BUMatrix.reset_index()
 BUMatrix.sort_values(by = ['eventOccurredDate'])
 
+BUList = BUMatrix.BusinessUnit.unique()
+#Remove Central Support due to
+BUList = BUList[BUList != 'Central Support'] 
+
+#Create dfDates dataframe based on max and min values in main dataframe.
+end_date = BUMatrix['eventOccurredDate'].max()
+start_date = BUMatrix['eventOccurredDate'].min()
+dfDates = MyFunctions.create_dates_dataframe(start_date,end_date)
+
+
+def BUPlot(BU,i):
+    # plt.subplot(3,2,i+1)
+    BUMatrix[BUMatrix['BusinessUnit'] == BU].plot(x='eventOccurredDate', y=['event_Observation','event_Incident'],style=".",figsize=(15,15))
+
+# for BU in BUList:
+#     BUPlot(BU)
+
+# =============================================================================
+# for i, BU in enumerate(BUList):
+#     BUPlot(BU,i)
+# plt.show()
+# =============================================================================
 #BUMatrix.plot(kind='scatter',x='', y='event_Observation')
-BUMatrix.plot(x='eventOccurredDate', y=['event_Observation','event_Incident'],style=".",figsize=(15,15))
-plt.show()
+# BUMatrix.plot(x='eventOccurredDate', y=['event_Observation','event_Incident'],style=".",figsize=(15,15))
+# plt.show()
 # from pandas.plotting import scatter_matrix
 # scatter_matrix(BUMatrix)
 
 # from pandas.plotting import scatter_matrix
 # print(scatter_matrix(BUMatrix))
+######Fill in the Date values so you have 1 date for every day. Do a count of each incident type over a set window.
+
+dfBUList = pd.DataFrame(BUList,columns = ['BusinessUnit'])
+dfCounts = MyFunctions.dataframe_crossjoin(dfDates, dfBUList)
+
+print(dfCounts)
