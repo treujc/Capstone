@@ -46,33 +46,34 @@ df_trimmed.event.unique()
 
 ##categories can be considered counts over time. Which could then become ratios.
 categories = ['event','eventClassification']#,'companyInvolved','operationOrDevelopment','jobTypeObserved','stopJob','immediateActionsTaken','rigInvolved']
-BUMatrix = pd.get_dummies(df_trimmed,columns = categories)
+dfBUMatrix = pd.get_dummies(df_trimmed,columns = categories)
 
 
-#BUMatrix.head()
+#dfBUMatrix.head()
 useful_columns = ['BusinessUnit','eventOccurredDate','event_Observation','event_Incident']
-BUMatrix = BUMatrix[useful_columns]
+dfBUMatrix = dfBUMatrix[useful_columns]
+dfBUMatrix = dfBUMatrix[dfBUMatrix['BusinessUnit'] != 'Central Support']
 
+dfBUMatrix['eventOccurredDate'] = pd.to_datetime(df['eventOccurredDate']).dt.date
+dfBUMatrix['eventOccurredDate'] = pd.to_datetime(dfBUMatrix['eventOccurredDate'])
+#dfBUMatrix = dfBUMatrix.groupby(dfBUMatrix.eventOccurredDate).sum()
+dfBUMatrix = dfBUMatrix.groupby([dfBUMatrix.eventOccurredDate,dfBUMatrix.BusinessUnit]).sum()
+dfBUMatrix = dfBUMatrix.reset_index()
+dfBUMatrix.sort_values(by = ['eventOccurredDate'])
 
-BUMatrix['eventOccurredDate'] = pd.to_datetime(df['eventOccurredDate']).dt.date
-#BUMatrix = BUMatrix.groupby(BUMatrix.eventOccurredDate).sum()
-BUMatrix = BUMatrix.groupby([BUMatrix.eventOccurredDate,BUMatrix.BusinessUnit]).sum()
-BUMatrix = BUMatrix.reset_index()
-BUMatrix.sort_values(by = ['eventOccurredDate'])
-
-BUList = BUMatrix.BusinessUnit.unique()
+BUList = dfBUMatrix.BusinessUnit.unique()
 #Remove Central Support due to
 BUList = BUList[BUList != 'Central Support'] 
 
 #Create dfDates dataframe based on max and min values in main dataframe.
-end_date = BUMatrix['eventOccurredDate'].max()
-start_date = BUMatrix['eventOccurredDate'].min()
+end_date = dfBUMatrix['eventOccurredDate'].max()
+start_date = dfBUMatrix['eventOccurredDate'].min()
 dfDates = MyFunctions.create_dates_dataframe(start_date,end_date)
 
 
 def BUPlot(BU,i):
     # plt.subplot(3,2,i+1)
-    BUMatrix[BUMatrix['BusinessUnit'] == BU].plot(x='eventOccurredDate', y=['event_Observation','event_Incident'],style=".",figsize=(15,15))
+    dfBUMatrix[dfBUMatrix['BusinessUnit'] == BU].plot(x='eventOccurredDate', y=['event_Observation','event_Incident'],style=".",figsize=(15,15))
 
 # for BU in BUList:
 #     BUPlot(BU)
@@ -82,17 +83,33 @@ def BUPlot(BU,i):
 #     BUPlot(BU,i)
 # plt.show()
 # =============================================================================
-#BUMatrix.plot(kind='scatter',x='', y='event_Observation')
-# BUMatrix.plot(x='eventOccurredDate', y=['event_Observation','event_Incident'],style=".",figsize=(15,15))
+#dfBUMatrix.plot(kind='scatter',x='', y='event_Observation')
+# dfBUMatrix.plot(x='eventOccurredDate', y=['event_Observation','event_Incident'],style=".",figsize=(15,15))
 # plt.show()
 # from pandas.plotting import scatter_matrix
-# scatter_matrix(BUMatrix)
+# scatter_matrix(dfBUMatrix)
 
 # from pandas.plotting import scatter_matrix
-# print(scatter_matrix(BUMatrix))
-######Fill in the Date values so you have 1 date for every day. Do a count of each incident type over a set window.
+# print(scatter_matrix(dfBUMatrix))
+
 
 dfBUList = pd.DataFrame(BUList,columns = ['BusinessUnit'])
 dfCounts = MyFunctions.dataframe_crossjoin(dfDates, dfBUList)
+dfFinal = pd.merge(dfCounts, dfBUMatrix, left_on=['DateKey','BusinessUnit'],right_on=['eventOccurredDate','BusinessUnit'], how='left')
+dfFinal = dfFinal.fillna(value = 0)
+dfFinal.drop('eventOccurredDate',axis = 1,inplace = True)
 
-print(dfCounts)
+def add_rolling_sums(DaysToRollList):
+    for i in DaysToRollList:
+        DaysToRoll = i 
+        event_Observation_Rolling = 'event_Observation_Rolling' + str(DaysToRoll)
+        event_Incident_Rolling = 'event_Incident_Rolling' + str(DaysToRoll)
+        dfFinal[event_Observation_Rolling] = dfFinal[['event_Observation']].groupby(dfFinal['DateKey'] & dfFinal['BusinessUnit']).apply(lambda g: g.rolling(DaysToRoll).sum())
+        dfFinal[event_Incident_Rolling] = dfFinal[['event_Incident']].groupby(dfFinal['DateKey'] & dfFinal['BusinessUnit']).apply(lambda g: g.rolling(DaysToRoll).sum())
+
+DaysToRollList = [14,45]#,45,60,90]
+add_rolling_sums(DaysToRollList)
+
+
+from pandas.plotting import scatter_matrix
+print(scatter_matrix(dfFinal, size = (12,12)))
