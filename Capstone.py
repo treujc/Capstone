@@ -63,7 +63,7 @@ dfBUMatrix.sort_values(by = ['eventOccurredDate'])
 
 BUList = dfBUMatrix.BusinessUnit.unique()
 #Remove Central Support due to
-BUList = BUList[BUList != 'Central Support'] 
+BUList = BUList[BUList != 'Central Support']
 
 #Create dfDates dataframe based on max and min values in main dataframe.
 end_date = dfBUMatrix['eventOccurredDate'].max()
@@ -101,7 +101,7 @@ dfFinal.drop('eventOccurredDate',axis = 1,inplace = True)
 
 def add_rolling_sums(DaysToRollList):
     for i in DaysToRollList:
-        DaysToRoll = i 
+        DaysToRoll = i
         event_Observation_Rolling = 'event_Observation_Rolling' + str(DaysToRoll)
         event_Incident_Rolling = 'event_Incident_Rolling' + str(DaysToRoll)
         dfFinal[event_Observation_Rolling] = dfFinal[['event_Observation']].groupby(dfFinal['DateKey'] & dfFinal['BusinessUnit']).apply(lambda g: g.rolling(DaysToRoll).sum())
@@ -109,7 +109,8 @@ def add_rolling_sums(DaysToRollList):
 
 DaysToRollList = [14,45]#,45,60,90]
 add_rolling_sums(DaysToRollList)
-
+print(dfFinal.tail(20))
 
 from pandas.plotting import scatter_matrix
-print(scatter_matrix(dfFinal, size = (12,12)))
+print(scatter_matrix(dfFinal, figsize = (12,12)))
+plt.show()
