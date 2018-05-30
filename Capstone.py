@@ -106,8 +106,11 @@ def add_rolling_sums(DaysToRollList):
         event_Incident_Rolling = 'event_Incident_Rolling' + str(DaysToRoll)
         dfFinal[event_Observation_Rolling] = dfFinal[['event_Observation']].groupby(dfFinal['DateKey'] & dfFinal['BusinessUnit']).apply(lambda g: g.rolling(DaysToRoll).sum())
         dfFinal[event_Incident_Rolling] = dfFinal[['event_Incident']].groupby(dfFinal['DateKey'] & dfFinal['BusinessUnit']).apply(lambda g: g.rolling(DaysToRoll).sum())
+##Make sure to throw out current day. See if there is kwarg to do this.
+##Try regularized regressor and random forrest regressor. Linear Regression.
+##Need to store results. Need to keep track of what works best.
 
-DaysToRollList = [14,45]#,45,60,90]
+DaysToRollList = [45]#,45,60,90]
 add_rolling_sums(DaysToRollList)
 print(dfFinal.tail(20))
 
