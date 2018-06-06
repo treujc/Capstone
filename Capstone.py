@@ -8,11 +8,11 @@ from sklearn.model_selection import cross_val_score
 from sklearn.ensemble import RandomForestRegressor
 #import matplotlib.pyplot as plt
 #from sklearn.preprocessing import LabelEncoder,OneHotEncoder, Binarizer
-#from sklearn.model_selection import train_test_split
+from sklearn.model_selection import train_test_split
 #from datetime import timedelta
 from sklearn.linear_model import LinearRegression
 #from sklearn.linear_model import LogisticRegression
-#from sklearn.metrics import r2_score
+from sklearn.metrics import r2_score
 
 #file locations
 current_dir = os.path.realpath(".")
@@ -66,8 +66,8 @@ def add_rolling_sums(DaysToRollList):
         DaysToRoll = i
         event_Observation_Rolling = 'event_Observation_Rolling' + str(DaysToRoll)
         event_Incident_Rolling = 'event_Incident_Rolling' + str(DaysToRoll)
-        dfFinal[event_Observation_Rolling] = dfFinal[['event_Observation']].groupby(dfFinal['DateKey'] & dfFinal['BusinessUnit']).apply(lambda g: g.rolling(DaysToRoll).sum().shift(7))
-        dfFinal[event_Incident_Rolling] = dfFinal[['event_Incident']].groupby(dfFinal['DateKey'] & dfFinal['BusinessUnit']).apply(lambda g: g.rolling(DaysToRoll).sum().shift(7))
+        dfFinal[event_Observation_Rolling] = dfFinal[['event_Observation']].groupby(dfFinal['DateKey'] & dfFinal['BusinessUnit']).apply(lambda g: g.rolling(DaysToRoll).sum().shift(1))
+        dfFinal[event_Incident_Rolling] = dfFinal[['event_Incident']].groupby(dfFinal['DateKey'] & dfFinal['BusinessUnit']).apply(lambda g: g.rolling(DaysToRoll).sum().shift(1))
 
 
 def rmse(true, predicted):
@@ -88,6 +88,7 @@ def linear_regression():
     for BU in list(dfFinal.BusinessUnit.unique()):
         #Create dataframes to represent what I am using as a predictor X vs what I hope to predict y.
         X = pd.DataFrame(dfFinal[(dfFinal['BusinessUnit'] == BU)], columns=Predictors)
+        #y = pd.DataFrame(dfFinal[(dfFinal['BusinessUnit'] == BU)], columns=To_Predict)
         y = pd.DataFrame(dfFinal[(dfFinal['BusinessUnit'] == BU)], columns=To_Predict)
 #        #Perform Test-Train split on a 20% break.
 #        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3,random_state=42)
@@ -99,15 +100,16 @@ def linear_regression():
 #        # Calculate RMSE for the test set
 #        RMSE = float(rmse(y_test, test_predicted))
 #        r2 = r2_score(y_test,test_predicted)
-#        print('{} BU, RMSE: {:.2f}, r2: {:.2f}'.format(BU,float(RMSE),r2))
+        #print('{} BU, RMSE: {:.2f}, r2: {:.2f}'.format(BU,float(RMSE),r2))
         results = cross_val_score(model, X, y, cv=kfold)
-        print(results.mean())
+        #print(results.mean())
+        print(results)
 
 
 ##Make sure to throw out current day. See if there is kwarg to do this. ##.shift(1) accomplished this.
 ##Try regularized regressor and random forrest regressor. Linear Regression.
 ##Need to store results. Need to keep track of what works best.
-
+#Try indexing into BU column instead of current approach to remove warning.
 
 
 if __name__ == '__main__':   
@@ -120,12 +122,12 @@ if __name__ == '__main__':
     MinDate = '12/1/2017' ##Remove this line and use the above if you want to mythodically set the first date value.
     dfFinal = dfFinal[(dfFinal['DateKey'] >= MinDate)]
     #Identify Predictors and what I am predicting.
-    Predictors = ['event_Observation','event_Observation_Rolling7']
+    Predictors = ['event_Observation_Rolling7','event_Observation_Rolling15']
     To_Predict = ['event_Incident_Rolling7']
     # create pipeline
     estimators = []
-    estimators.append(('Linear', LinearRegression()))
-    #estimators.append(('RandomForestRegressor', RandomForestRegressor()))
+    #estimators.append(('Linear', LinearRegression()))
+    estimators.append(('RandomForestRegressor', RandomForestRegressor()))
     model = Pipeline(estimators)
     # evaluate pipeline
     seed = 7
