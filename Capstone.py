@@ -2,8 +2,7 @@ import pandas as pd
 import numpy as np
 import os
 import MyFunctions
-from sklearn.model_selection import KFold
-from sklearn.model_selection import cross_val_score
+from sklearn.model_selection import cross_val_score, cross_val_predict, KFold
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.linear_model import LinearRegression, Ridge
 import matplotlib.pyplot as plt
@@ -88,12 +87,21 @@ def run_model(model):
     
     Output: r2.
     '''
-    for BU in list(dfFinal.BusinessUnit.unique()):
+    for BU in list(dfFinal.BusinessUnit.unique()):#list(dfFinal.BusinessUnit.unique()):
         X = pd.DataFrame(dfFinal[(dfFinal['BusinessUnit'] == BU)], columns=Predictors)
-        y = pd.DataFrame(dfFinal[(dfFinal['BusinessUnit'] == BU)], columns=To_Predict)
+        y = np.ravel(pd.DataFrame(dfFinal[(dfFinal['BusinessUnit'] == BU)], columns=To_Predict))
         results = cross_val_score(model, X, y, cv=kfold)
+        predicted = cross_val_predict(model, X, y, cv=kfold)
         r2 = results.mean()
-        print('{} BU, r2: {:.2f}'.format(BU,r2))
+        plt.figure(figsize= (10,10))
+        ax = plt.subplot()
+        ax.scatter(y, predicted, edgecolors=(.5,1,0))
+        ax.plot([y.min(), y.max()], [y.min(), y.max()], 'k--', lw=4)
+        plt.title('{} BU, r2: {:.2f}'.format(BU,r2))
+        ax.set_xlabel('Measured')
+        ax.set_ylabel('Predicted')
+        #print('{} BU, r2: {:.2f}'.format(BU,r2))
+        plt.show()
 
 
 if __name__ == '__main__':   
@@ -106,7 +114,7 @@ if __name__ == '__main__':
     Predictors = ['event_Observation_Rolling7']
     To_Predict = ['event_Incident_Rolling7']
     seed = 9
-    kfold = KFold(n_splits=3, random_state=seed)
+    kfold = KFold(n_splits=3, random_state=seed, shuffle = True)
     print('--------------------Linear Regression----------------------')
     model = LinearRegression()
     run_model(model)
@@ -116,12 +124,14 @@ if __name__ == '__main__':
     run_model(model)
     print('-----------------------------------------------------------')
     print('--------------------Ridge Regression--------------------')
-    model = Ridge(normalize = True)
+    model = Ridge(alpha = .5,normalize = True)
     run_model(model)
     print('-----------------------------------------------------------')
     
-    #Create a Scatter Matrix.
-    #print(scatter_matrix(dfFinal, figsize = (12,12)))
-    #plt.show()
+#    #Create a Scatter Matrix.
+#    print(scatter_matrix(dfFinal, figsize = (12,12))) 
+    
+    
+    
 
 
