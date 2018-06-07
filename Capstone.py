@@ -46,42 +46,12 @@ dfCounts = MyFunctions.dataframe_crossjoin(dfDates, dfBUList)
 dfFinal = pd.merge(dfCounts, dfBUMatrix, left_on=['DateKey','BusinessUnit'],right_on=['eventOccurredDate','BusinessUnit'], how='left')
 dfFinal = dfFinal.fillna(value = 0)
 dfFinal.drop('eventOccurredDate',axis = 1,inplace = True)
+###This line shows the behavior we hoped to see.
+##dfFinal['event_Incident'] = -dfFinal['event_Incident']
 
 
 
-def roc_curve(probabilities, labels):
-    '''
-    INPUT: numpy array, numpy array
-    OUTPUT: list, list, list
-
-    Take a numpy array of the predicted probabilities and a numpy array of the
-    true labels.
-    Return the True Positive Rates, False Positive Rates and Thresholds for the
-    ROC curve.
-    '''
-    thresholds = np.sort(probabilities)
-    tprs = []
-    fprs = []
-    num_positive_cases = sum(labels)
-    num_negative_cases = len(labels) - num_positive_cases
-    for threshold in thresholds:
-        # With this threshold, give the prediction of each instance
-        predicted_positive = probabilities >= threshold
-        # Calculate the number of correctly predicted positive cases
-        true_positives = np.sum(predicted_positive * labels)
-        # Calculate the number of incorrectly predicted positive cases
-        false_positives = np.sum(predicted_positive) - true_positives
-        # Calculate the True Positive Rate
-        tpr = true_positives / float(num_positive_cases)
-        # Calculate the False Positive Rate
-        fpr = false_positives / float(num_negative_cases)
-        fprs.append(fpr)
-        tprs.append(tpr)
-    return tprs, fprs, thresholds.tolist()
-
-
-
-def add_rolling_sums(DaysToRollList):
+def add_rolling_sums(DaysToRollList,DaysToPredict):
     '''
     Creates rolling sum columns based on a list of "Days Back" to roll the sums. 
     
@@ -95,6 +65,7 @@ def add_rolling_sums(DaysToRollList):
         event_Incident_Rolling = 'event_Incident_Rolling' + str(DaysToRoll)
         dfFinal[event_Observation_Rolling] = dfFinal[['event_Observation']].groupby(dfFinal['DateKey'] & dfFinal['BusinessUnit']).apply(lambda g: g.rolling(DaysToRoll).sum().shift(1))
         dfFinal[event_Incident_Rolling] = dfFinal[['event_Incident']].groupby(dfFinal['DateKey'] & dfFinal['BusinessUnit']).apply(lambda g: g.rolling(DaysToRoll).sum().shift(1))
+        dfFinal['event_Incident_Prediction_Rolling'] = dfFinal[['event_Incident']].groupby(dfFinal['DateKey'] & dfFinal['BusinessUnit']).apply(lambda g: g.rolling(DaysToPredict).sum().shift(-DaysToPredict))
     dfFinal.reset_index()
 
 
@@ -125,7 +96,7 @@ def run_model(model,dfBU):
     X = pd.DataFrame(dfBU, columns=Predictors)
     y = np.ravel(pd.DataFrame(dfBU, columns=To_Predict))
     #Do initial Test-Train split.
-    X_train, X_test, y_train, y_test = train_test_split(X, y,test_size = .3,random_state = seed)
+    X_train, X_test, y_train, y_test = train_test_split(X, y,test_size = .2,random_state = seed)
     results = cross_val_score(model, X_train, y_train, cv=kfold)
     predicted = cross_val_predict(model, X_train, y_train, cv=kfold)
     r2 = results.mean()
@@ -140,36 +111,42 @@ def run_model(model,dfBU):
     ax.set_ylabel('Predicted')
     #print('{} BU, r2: {:.2f}'.format(BU,r2))
     plt.show()
-    model.fit(X_train, y_train)
-    probabilities = model.predict(X_test)[:,0]
-    tpr, fpr, thresholds = roc_curve(probabilities, y_test)
-    plt.figure(figsize= (figure_size,figure_size))
-    plt.plot(fpr, tpr)
-    plt.xlabel("False Positive Rate (1 - Specificity)")
-    plt.ylabel("True Positive Rate (Sensitivity, Recall)")
-    plt.title("ROC plot of safety events")
-    plt.show()
+    #Plot over time where actuals are a scatter plot and prediction is the line.
+    #plt.figure(figsize= (figure_size,figure_size))
+    #plt.plot(predicted)
 
 
 
-if __name__ == '__main__':   
-    DaysToRollList = [7,15]
-    add_rolling_sums(DaysToRollList)
+if __name__ == '__main__':  
+    DaysToRollList = [3,7,15,30]
+    DaysToPredict = 7
+    add_rolling_sums(DaysToRollList,DaysToPredict)
     MinDate = '12/1/2017'
     dfFinal = dfFinal[(dfFinal['DateKey'] >= MinDate)]
+    dfFinal = dfFinal[(dfFinal['event_Observation'] != 0)]
+    dfFinal = dfFinal[dfFinal.event_Incident_Prediction_Rolling.isnull() == False]
+    dfFinal['WeekDay'] = dfFinal['DateKey'].dt.dayofweek
     dfFinal.reset_index()
     figure_size = 5
     ###Identify Predictors and what I am predicting.
-    Predictors = ['event_Observation_Rolling7','event_Observation_Rolling15']
-    To_Predict = ['event_Incident_Rolling7']
+    Predictors = [#'WeekDay',
+                  #'event_Incident_Rolling3',
+                  'event_Incident_Rolling7',
+                    'event_Incident_Rolling15',
+                  'event_Incident_Rolling30',
+                  # 'event_Observation_Rolling3',
+                    'event_Observation_Rolling7',
+                    'event_Observation_Rolling15',
+                    'event_Observation_Rolling30']
+    To_Predict = ['event_Incident_Prediction_Rolling']
     seed = 9
     kfold = KFold(n_splits=3, random_state=seed, shuffle = True)
-    for BU in ['North']:#list(dfFinal.BusinessUnit.unique()):
+    for BU in list(dfFinal.BusinessUnit.unique()):  #['Midcon']:
         dfBU = pd.DataFrame(dfFinal[(dfFinal['BusinessUnit'] == BU)])
-        #Scatter matrix of correlations.
-        scatter_matrix(dfBU, alpha=0.2, figsize=(figure_size,figure_size), diagonal='kde')
-        plt.suptitle('Scatter Matrix for {} BU'.format(BU),fontsize = 12)
-        plt.show()
+#        #Scatter matrix of correlations.
+#        scatter_matrix(dfBU, alpha=0.4, figsize=(figure_size,figure_size), diagonal='kde')
+#        plt.suptitle('Scatter Matrix for {} BU'.format(BU),fontsize = 12)
+#        plt.show()
         print('-------------------------Linear Regression---------------------------')
         model = LinearRegression()
         run_model(model,dfBU)
