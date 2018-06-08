@@ -1,19 +1,9 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Thu Jun  7 13:44:32 2018
-
-@author: evan.trevathan
-"""
-
 import pandas as pd
 import numpy as np
 import os
-import MyFunctions
 from sklearn.model_selection import cross_val_score, cross_val_predict, KFold, train_test_split
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.linear_model import LinearRegression, Ridge
-import matplotlib.pyplot as plt
-from pandas.plotting import scatter_matrix
 import logging
 
 #file locations
@@ -42,24 +32,16 @@ dfBUMatrix['eventOccurredDate'] = pd.to_datetime(dfBUMatrix['eventOccurredDate']
 dfBUMatrix = dfBUMatrix.groupby([dfBUMatrix.eventOccurredDate,dfBUMatrix.BusinessUnit]).sum()
 dfBUMatrix = dfBUMatrix.reset_index()
 dfBUMatrix.sort_values(by = ['eventOccurredDate'])
-#Create dfDates dataframe based on max and min values in main dataframe.
-end_date = dfBUMatrix['eventOccurredDate'].max()
-start_date = dfBUMatrix['eventOccurredDate'].min()
-dfDates = MyFunctions.create_dates_dataframe(start_date,end_date)
-#Grab the distinct list of BU's.
-dfBUList = pd.DataFrame(dfBUMatrix.BusinessUnit.unique(),columns = ['BusinessUnit'])
-#Spread the dates across all BU's.
-dfCounts = MyFunctions.dataframe_crossjoin(dfDates, dfBUList)
-#Spread the counts across all dates even when you have zero for the count.
-dfFinal = pd.merge(dfCounts, dfBUMatrix, left_on=['DateKey','BusinessUnit'],right_on=['eventOccurredDate','BusinessUnit'], how='left')
+dfFinal = dfBUMatrix.copy()
 dfFinal = dfFinal.fillna(value = 0)
-dfFinal.drop('eventOccurredDate',axis = 1,inplace = True)
-###This line shows the behavior we hoped to see.
-##dfFinal['event_Incident'] = -dfFinal['event_Incident']
+dfFinal = dfFinal[(dfFinal['event_Observation'] != 0)]
+dfFinal.rename(columns = {'eventOccurredDate':'DateKey'}, inplace = True)
+dfFinal['WeekDay'] = dfFinal['DateKey'].dt.dayofweek
+dfFinal.reset_index()
 
 
 
-def add_rolling_sums(DaysToRollList,DaysToPredict):
+def add_rolling_sums(dfBU,DaysToRollList,DaysToPredict):
     '''
     Creates rolling sum columns based on a list of "Days Back" to roll the sums. 
     
@@ -71,11 +53,10 @@ def add_rolling_sums(DaysToRollList,DaysToPredict):
         DaysToRoll = i
         event_Observation_Rolling = 'event_Observation_Rolling' + str(DaysToRoll)
         event_Incident_Rolling = 'event_Incident_Rolling' + str(DaysToRoll)
-        dfFinal[event_Observation_Rolling] = dfFinal[['event_Observation']].groupby(dfFinal['DateKey'] & dfFinal['BusinessUnit']).apply(lambda g: g.rolling(DaysToRoll).sum().shift(1))
-        dfFinal[event_Incident_Rolling] = dfFinal[['event_Incident']].groupby(dfFinal['DateKey'] & dfFinal['BusinessUnit']).apply(lambda g: g.rolling(DaysToRoll).sum().shift(1))
-        dfFinal['event_Incident_Prediction_Rolling'] = dfFinal[['event_Incident']].groupby(dfFinal['DateKey'] & dfFinal['BusinessUnit']).apply(lambda g: g.rolling(DaysToPredict).sum().shift(-DaysToPredict))
-    dfFinal.reset_index()
-
+        dfBU[event_Observation_Rolling] = dfBU[['event_Observation']].groupby(dfBU['DateKey'] & dfBU['BusinessUnit']).apply(lambda g: g.rolling(DaysToRoll).sum().shift(1))
+        dfBU[event_Incident_Rolling] = dfBU[['event_Incident']].groupby(dfBU['DateKey'] & dfBU['BusinessUnit']).apply(lambda g: g.rolling(DaysToRoll).sum().shift(1))
+        dfBU['event_Incident_Prediction_Rolling'] = dfBU[['event_Incident']].groupby(dfBU['DateKey'] & dfBU['BusinessUnit']).apply(lambda g: g.rolling(DaysToPredict).sum().shift(-DaysToPredict))
+    dfBU.reset_index()
 
 
 def rmse(true, predicted):
@@ -91,6 +72,7 @@ def rmse(true, predicted):
     count = diff.shape[0]
     result = np.sqrt(sumsq/count)
     return result
+
 
 def run_model(model,dfBU):
     '''
@@ -109,7 +91,7 @@ def run_model(model,dfBU):
     predicted = cross_val_predict(model, X_train, y_train, cv=kfold)
     r2 = results.mean()
     return r2
-    #Scatter plot of Predicted vs Measured.
+#    #Scatter plot of Predicted vs Measured.
 #    plt.figure(figsize= (figure_size,figure_size))
 #    ax = plt.subplot()
 #    ax.scatter(y_train, predicted, edgecolors=(.5,1,0))
@@ -118,19 +100,21 @@ def run_model(model,dfBU):
 #    plt.title('r2: {:.2f}'.format(r2),fontsize = 12)
 #    ax.set_xlabel('Measured')
 #    ax.set_ylabel('Predicted')
-    #print('{} BU, r2: {:.2f}'.format(BU,r2))
+#    #print('{} BU, r2: {:.2f}'.format(BU,r2))
 #    plt.show()
-    #Plot over time where actuals are a scatter plot and prediction is the line.
-    #plt.figure(figsize= (figure_size,figure_size))
-    #plt.plot(predicted)
+#    #Plot over time where actuals are a scatter plot and prediction is the line.
+#    #plt.figure(figsize= (figure_size,figure_size))
+#    #plt.plot(predicted)
 
 from itertools import chain, combinations
 def all_subsets(ss):
-    return chain(*map(lambda x: combinations(ss, x), range(0, len(ss)+1)))
+    result = chain(*map(lambda x: combinations(ss, x), range(1, len(ss)+1)))
+    result = result
+    return result
 
 
 if __name__ == '__main__':  
-    filename = 'CapstoneParameterTuneResults5.csv'
+    filename = 'CapstoneParameterTuneResults.csv'
     logger = logging.getLogger('CapstoneParameterTune')
     hdlr = logging.FileHandler(filename)
     formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
@@ -139,38 +123,37 @@ if __name__ == '__main__':
     logger.setLevel(logging.INFO)
     DaysToRollList = [3,7,15,30]
     DaysToPredict = 7
-    for i in range(1,DaysToPredict+1):
-        add_rolling_sums(DaysToRollList,i)
-        MinDate = '12/1/2017'
-        dfCleaned = dfFinal.copy()
-        dfCleaned = dfCleaned[(dfCleaned['DateKey'] >= MinDate)]
-        dfCleaned = dfCleaned[(dfCleaned['event_Observation'] != 0)]
-        dfCleaned = dfCleaned[dfCleaned.event_Incident_Prediction_Rolling.isnull() == False]
-        dfCleaned['WeekDay'] = dfCleaned['DateKey'].dt.dayofweek
-        dfCleaned.reset_index()
-        figure_size = 5
-        ###Identify Predictors and what I am predicting.
-        Predictors = ['WeekDay',
-                      'event_Incident_Rolling3',
-                      'event_Incident_Rolling7',
-                        'event_Incident_Rolling15',
-                      'event_Incident_Rolling30',
-                       'event_Observation_Rolling3',
-                        'event_Observation_Rolling7',
-                        'event_Observation_Rolling15',
-                        'event_Observation_Rolling30']
-        To_Predict = ['event_Incident_Prediction_Rolling']
-        seed = 9
-        kfold = KFold(n_splits=3, random_state=seed, shuffle = True)
-        for NewPredictors in all_subsets(Predictors):
-            for BU in list(dfCleaned.BusinessUnit.unique()):  #['Midcon']:
-                dfBU = pd.DataFrame(dfCleaned[(dfCleaned['BusinessUnit'] == BU)])
-                model = LinearRegression()
-                logger.info(',' + BU + ',LinearRegression' + ',{:.2f}'.format(run_model(model,dfBU)) + ',' + str(i) + ',' + ','.join(NewPredictors))
+    ###Identify Predictors and what I am predicting.
+    Predictors = [
+                    'WeekDay',
+                    'event_Incident_Rolling3',
+                    'event_Incident_Rolling7',
+                    'event_Incident_Rolling15',
+                    'event_Incident_Rolling30',
+                    'event_Observation_Rolling3',
+                    'event_Observation_Rolling7',
+                    'event_Observation_Rolling15',
+                    'event_Observation_Rolling30'
+                    ]
+    To_Predict = ['event_Incident_Prediction_Rolling']
+    seed = 9
+    kfold = KFold(n_splits=3, random_state=seed, shuffle = True)   
+    for i in range(1,DaysToPredict+1):       
+        MyPredictors = list(all_subsets(Predictors))
+        MyPredictors.sort(key = len,reverse = True)
+        for NewPredictors in MyPredictors:
+            for BU in list(dfFinal.BusinessUnit.unique()):  #['Midcon']:
+                dfBU = pd.DataFrame(dfFinal[(dfFinal['BusinessUnit'] == BU)].copy())
+                add_rolling_sums(dfBU,DaysToRollList,DaysToPredict) 
+                MinDate = '1/1/2018'
+                dfBU = dfBU[lambda d: d.DateKey >= MinDate]   
+                dfBU = dfBU[lambda d: pd.notnull(d.event_Incident_Prediction_Rolling) == True]
+#                model = LinearRegression()
+#                logger.info(',' + BU + ',LinearRegression' + ',{:.2f}'.format(run_model(model,dfBU)) + ',' + str(i) + ',' + ','.join(NewPredictors))
                 model = RandomForestRegressor(n_estimators = 50)#,bootstrap = True)
                 logger.info(',' + BU + ',RandomForestRegressor' + ',{:.2f}'.format(run_model(model,dfBU)) + ',' + str(i) + ',' + ','.join(NewPredictors))
-                model = Ridge(alpha = .5,normalize = True)
-                logger.info(',' + BU + ',Ridge' + ',{:.2f}'.format(run_model(model,dfBU)) + ',' + str(i) + ',' + ','.join(NewPredictors))
+#                model = Ridge(alpha = .5,normalize = True)
+#                logger.info(',' + BU + ',Ridge' + ',{:.2f}'.format(run_model(model,dfBU)) + ',' + str(i) + ',' + ','.join(NewPredictors))
 
     
     
