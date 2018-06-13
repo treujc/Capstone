@@ -27,7 +27,7 @@ df = pd.read_csv(filename,
 df.reset_index()
 #useful_columns = ['BusinessUnit','ModelType','r2','PredictionBucket']
 #df[useful_columns]
-print(df.info())
+#print(df.info())
 #print(df.describe())
 #print(df.Date.min)
 #print(df.head(20))

@@ -111,17 +111,15 @@ def run_model(model,dfBU):
 
 if __name__ == '__main__':  
     DaysToRollList = [3,7,15,30]
-    DaysToPredict = 7
+    DaysToPredict = 14
     figure_size = 5
     ###Identify Predictors and what I am predicting.
     Predictors = [
                     'WeekDay',
-                    #'event_Incident',
                     'event_Incident_Rolling3',
                     'event_Incident_Rolling7',
                     'event_Incident_Rolling15',
                     'event_Incident_Rolling30',
-                  #  'event_Observation',
                     'event_Observation_Rolling3',
                     'event_Observation_Rolling7',
                     'event_Observation_Rolling15',
@@ -136,10 +134,10 @@ if __name__ == '__main__':
         MinDate = '1/1/2018'
         dfBU = dfBU[lambda d: d.DateKey >= MinDate]   
         dfBU = dfBU[lambda d: pd.notnull(d.event_Incident_Prediction_Rolling) == True]
-        #Scatter matrix of correlations.
-        scatter_matrix(dfBU, alpha=0.4, figsize=(figure_size,figure_size), diagonal='kde')
-        plt.suptitle('Scatter Matrix for {} BU'.format(BU),fontsize = 12)
-        plt.show()
+#        #Scatter matrix of correlations.
+#        scatter_matrix(dfBU, alpha=0.4, figsize=(figure_size,figure_size), diagonal='kde')
+#        plt.suptitle('Scatter Matrix for {} BU'.format(BU),fontsize = 12)
+#        plt.show()
 #        print('-------------------------Linear Regression---------------------------')
 #        model = LinearRegression()
 #        run_model(model,dfBU)
