@@ -134,7 +134,7 @@ if __name__ == '__main__':
         MinDate = '1/1/2018'
         dfBU = dfBU[lambda d: d.DateKey >= MinDate]   
         dfBU = dfBU[lambda d: pd.notnull(d.event_Incident_Prediction_Rolling) == True]
-#        #Scatter matrix of correlations.
+        #Scatter matrix of correlations.
 #        scatter_matrix(dfBU, alpha=0.4, figsize=(figure_size,figure_size), diagonal='kde')
 #        plt.suptitle('Scatter Matrix for {} BU'.format(BU),fontsize = 12)
 #        plt.show()
@@ -151,7 +151,11 @@ if __name__ == '__main__':
 #        run_model(model,dfBU)
 #        print('---------------------------------------------------------------------')
 
-    
+#Plot feature importance. PCA? 
+#Are there different types of Observations? Maybe bucket Spills differently than cuts etc. 
+#See if there is any data on feedback from management. LIke better data from before vs after town halls.
+#Consider Poisson Regression.
+        
     
     
 
