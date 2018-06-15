@@ -1,0 +1,431 @@
+,BusinessUnit,Cols
+2053,West,"Predictor1                        WeekDay
+Predictor2        event_Incident_Rolling3
+Predictor3        event_Incident_Rolling7
+Predictor4       event_Incident_Rolling15
+Predictor5       event_Incident_Rolling30
+Predictor6     event_Observation_Rolling3
+Predictor7     event_Observation_Rolling7
+Predictor8    event_Observation_Rolling30
+Predictor9                            NaN
+Name: 2053, dtype: object"
+2093,West,"Predictor1                        WeekDay
+Predictor2        event_Incident_Rolling3
+Predictor3        event_Incident_Rolling7
+Predictor4       event_Incident_Rolling15
+Predictor5       event_Incident_Rolling30
+Predictor6     event_Observation_Rolling3
+Predictor7    event_Observation_Rolling30
+Predictor8                            NaN
+Predictor9                            NaN
+Name: 2093, dtype: object"
+2293,West,"Predictor1                        WeekDay
+Predictor2        event_Incident_Rolling3
+Predictor3        event_Incident_Rolling7
+Predictor4     event_Observation_Rolling3
+Predictor5     event_Observation_Rolling7
+Predictor6    event_Observation_Rolling15
+Predictor7                            NaN
+Predictor8                            NaN
+Predictor9                            NaN
+Name: 2293, dtype: object"
+2605,West,"Predictor1                        WeekDay
+Predictor2        event_Incident_Rolling3
+Predictor3        event_Incident_Rolling7
+Predictor4     event_Observation_Rolling3
+Predictor5    event_Observation_Rolling15
+Predictor6                            NaN
+Predictor7                            NaN
+Predictor8                            NaN
+Predictor9                            NaN
+Name: 2605, dtype: object"
+2617,West,"Predictor1                        WeekDay
+Predictor2        event_Incident_Rolling3
+Predictor3        event_Incident_Rolling7
+Predictor4     event_Observation_Rolling7
+Predictor5    event_Observation_Rolling30
+Predictor6                            NaN
+Predictor7                            NaN
+Predictor8                            NaN
+Predictor9                            NaN
+Name: 2617, dtype: object"
+2621,West,"Predictor1                        WeekDay
+Predictor2        event_Incident_Rolling3
+Predictor3        event_Incident_Rolling7
+Predictor4    event_Observation_Rolling15
+Predictor5    event_Observation_Rolling30
+Predictor6                            NaN
+Predictor7                            NaN
+Predictor8                            NaN
+Predictor9                            NaN
+Name: 2621, dtype: object"
+2149,West,"Predictor1                        WeekDay
+Predictor2        event_Incident_Rolling3
+Predictor3       event_Incident_Rolling15
+Predictor4       event_Incident_Rolling30
+Predictor5     event_Observation_Rolling3
+Predictor6     event_Observation_Rolling7
+Predictor7    event_Observation_Rolling30
+Predictor8                            NaN
+Predictor9                            NaN
+Name: 2149, dtype: object"
+2313,West,"Predictor1                        WeekDay
+Predictor2        event_Incident_Rolling3
+Predictor3       event_Incident_Rolling15
+Predictor4       event_Incident_Rolling30
+Predictor5     event_Observation_Rolling3
+Predictor6    event_Observation_Rolling15
+Predictor7                            NaN
+Predictor8                            NaN
+Predictor9                            NaN
+Name: 2313, dtype: object"
+2633,West,"Predictor1                        WeekDay
+Predictor2        event_Incident_Rolling3
+Predictor3       event_Incident_Rolling15
+Predictor4       event_Incident_Rolling30
+Predictor5    event_Observation_Rolling15
+Predictor6                            NaN
+Predictor7                            NaN
+Predictor8                            NaN
+Predictor9                            NaN
+Name: 2633, dtype: object"
+2373,West,"Predictor1                        WeekDay
+Predictor2        event_Incident_Rolling7
+Predictor3       event_Incident_Rolling15
+Predictor4       event_Incident_Rolling30
+Predictor5     event_Observation_Rolling3
+Predictor6    event_Observation_Rolling15
+Predictor7                            NaN
+Predictor8                            NaN
+Predictor9                            NaN
+Name: 2373, dtype: object"
+2761,West,"Predictor1                        WeekDay
+Predictor2        event_Incident_Rolling7
+Predictor3       event_Incident_Rolling30
+Predictor4     event_Observation_Rolling7
+Predictor5    event_Observation_Rolling30
+Predictor6                            NaN
+Predictor7                            NaN
+Predictor8                            NaN
+Predictor9                            NaN
+Name: 2761, dtype: object"
+2773,West,"Predictor1                        WeekDay
+Predictor2        event_Incident_Rolling7
+Predictor3     event_Observation_Rolling3
+Predictor4     event_Observation_Rolling7
+Predictor5    event_Observation_Rolling30
+Predictor6                            NaN
+Predictor7                            NaN
+Predictor8                            NaN
+Predictor9                            NaN
+Name: 2773, dtype: object"
+2245,West,"Predictor1                       WeekDay
+Predictor2       event_Incident_Rolling3
+Predictor3       event_Incident_Rolling7
+Predictor4      event_Incident_Rolling15
+Predictor5    event_Observation_Rolling3
+Predictor6    event_Observation_Rolling7
+Predictor7                           NaN
+Predictor8                           NaN
+Predictor9                           NaN
+Name: 2245, dtype: object"
+3101,West,"Predictor1                       WeekDay
+Predictor2       event_Incident_Rolling3
+Predictor3      event_Incident_Rolling15
+Predictor4    event_Observation_Rolling7
+Predictor5                           NaN
+Predictor6                           NaN
+Predictor7                           NaN
+Predictor8                           NaN
+Predictor9                           NaN
+Name: 3101, dtype: object"
+2369,West,"Predictor1                       WeekDay
+Predictor2       event_Incident_Rolling7
+Predictor3      event_Incident_Rolling15
+Predictor4      event_Incident_Rolling30
+Predictor5    event_Observation_Rolling3
+Predictor6    event_Observation_Rolling7
+Predictor7                           NaN
+Predictor8                           NaN
+Predictor9                           NaN
+Name: 2369, dtype: object"
+2497,West,"Predictor1        event_Incident_Rolling3
+Predictor2        event_Incident_Rolling7
+Predictor3       event_Incident_Rolling30
+Predictor4     event_Observation_Rolling3
+Predictor5     event_Observation_Rolling7
+Predictor6    event_Observation_Rolling30
+Predictor7                            NaN
+Predictor8                            NaN
+Predictor9                            NaN
+Name: 2497, dtype: object"
+3737,West,"Predictor1        event_Incident_Rolling3
+Predictor2       event_Incident_Rolling30
+Predictor3    event_Observation_Rolling15
+Predictor4                            NaN
+Predictor5                            NaN
+Predictor6                            NaN
+Predictor7                            NaN
+Predictor8                            NaN
+Predictor9                            NaN
+Name: 3737, dtype: object"
+3429,West,"Predictor1        event_Incident_Rolling3
+Predictor2     event_Observation_Rolling7
+Predictor3    event_Observation_Rolling15
+Predictor4    event_Observation_Rolling30
+Predictor5                            NaN
+Predictor6                            NaN
+Predictor7                            NaN
+Predictor8                            NaN
+Predictor9                            NaN
+Name: 3429, dtype: object"
+2225,West,"Predictor1        event_Incident_Rolling7
+Predictor2       event_Incident_Rolling15
+Predictor3       event_Incident_Rolling30
+Predictor4     event_Observation_Rolling3
+Predictor5     event_Observation_Rolling7
+Predictor6    event_Observation_Rolling15
+Predictor7    event_Observation_Rolling30
+Predictor8                            NaN
+Predictor9                            NaN
+Name: 2225, dtype: object"
+2545,West,"Predictor1        event_Incident_Rolling7
+Predictor2       event_Incident_Rolling15
+Predictor3       event_Incident_Rolling30
+Predictor4     event_Observation_Rolling3
+Predictor5    event_Observation_Rolling15
+Predictor6    event_Observation_Rolling30
+Predictor7                            NaN
+Predictor8                            NaN
+Predictor9                            NaN
+Name: 2545, dtype: object"
+2549,West,"Predictor1        event_Incident_Rolling7
+Predictor2       event_Incident_Rolling15
+Predictor3       event_Incident_Rolling30
+Predictor4     event_Observation_Rolling7
+Predictor5    event_Observation_Rolling15
+Predictor6    event_Observation_Rolling30
+Predictor7                            NaN
+Predictor8                            NaN
+Predictor9                            NaN
+Name: 2549, dtype: object"
+3441,West,"Predictor1        event_Incident_Rolling7
+Predictor2       event_Incident_Rolling15
+Predictor3       event_Incident_Rolling30
+Predictor4    event_Observation_Rolling15
+Predictor5                            NaN
+Predictor6                            NaN
+Predictor7                            NaN
+Predictor8                            NaN
+Predictor9                            NaN
+Name: 3441, dtype: object"
+3781,West,"Predictor1        event_Incident_Rolling7
+Predictor2       event_Incident_Rolling15
+Predictor3    event_Observation_Rolling15
+Predictor4                            NaN
+Predictor5                            NaN
+Predictor6                            NaN
+Predictor7                            NaN
+Predictor8                            NaN
+Predictor9                            NaN
+Name: 3781, dtype: object"
+2557,West,"Predictor1        event_Incident_Rolling7
+Predictor2       event_Incident_Rolling30
+Predictor3     event_Observation_Rolling3
+Predictor4     event_Observation_Rolling7
+Predictor5    event_Observation_Rolling15
+Predictor6    event_Observation_Rolling30
+Predictor7                            NaN
+Predictor8                            NaN
+Predictor9                            NaN
+Name: 2557, dtype: object"
+3485,West,"Predictor1        event_Incident_Rolling7
+Predictor2       event_Incident_Rolling30
+Predictor3     event_Observation_Rolling7
+Predictor4    event_Observation_Rolling15
+Predictor5                            NaN
+Predictor6                            NaN
+Predictor7                            NaN
+Predictor8                            NaN
+Predictor9                            NaN
+Name: 3485, dtype: object"
+3489,West,"Predictor1        event_Incident_Rolling7
+Predictor2       event_Incident_Rolling30
+Predictor3     event_Observation_Rolling7
+Predictor4    event_Observation_Rolling30
+Predictor5                            NaN
+Predictor6                            NaN
+Predictor7                            NaN
+Predictor8                            NaN
+Predictor9                            NaN
+Name: 3489, dtype: object"
+3801,West,"Predictor1        event_Incident_Rolling7
+Predictor2       event_Incident_Rolling30
+Predictor3    event_Observation_Rolling30
+Predictor4                            NaN
+Predictor5                            NaN
+Predictor6                            NaN
+Predictor7                            NaN
+Predictor8                            NaN
+Predictor9                            NaN
+Name: 3801, dtype: object"
+3505,West,"Predictor1        event_Incident_Rolling7
+Predictor2     event_Observation_Rolling3
+Predictor3    event_Observation_Rolling15
+Predictor4    event_Observation_Rolling30
+Predictor5                            NaN
+Predictor6                            NaN
+Predictor7                            NaN
+Predictor8                            NaN
+Predictor9                            NaN
+Name: 3505, dtype: object"
+3817,West,"Predictor1        event_Incident_Rolling7
+Predictor2     event_Observation_Rolling7
+Predictor3    event_Observation_Rolling15
+Predictor4                            NaN
+Predictor5                            NaN
+Predictor6                            NaN
+Predictor7                            NaN
+Predictor8                            NaN
+Predictor9                            NaN
+Name: 3817, dtype: object"
+3837,West,"Predictor1       event_Incident_Rolling15
+Predictor2       event_Incident_Rolling30
+Predictor3    event_Observation_Rolling15
+Predictor4                            NaN
+Predictor5                            NaN
+Predictor6                            NaN
+Predictor7                            NaN
+Predictor8                            NaN
+Predictor9                            NaN
+Name: 3837, dtype: object"
+3841,West,"Predictor1       event_Incident_Rolling15
+Predictor2       event_Incident_Rolling30
+Predictor3    event_Observation_Rolling30
+Predictor4                            NaN
+Predictor5                            NaN
+Predictor6                            NaN
+Predictor7                            NaN
+Predictor8                            NaN
+Predictor9                            NaN
+Name: 3841, dtype: object"
+3061,West,"Predictor1       event_Incident_Rolling15
+Predictor2     event_Observation_Rolling3
+Predictor3     event_Observation_Rolling7
+Predictor4    event_Observation_Rolling15
+Predictor5    event_Observation_Rolling30
+Predictor6                            NaN
+Predictor7                            NaN
+Predictor8                            NaN
+Predictor9                            NaN
+Name: 3061, dtype: object"
+2453,West,"Predictor1       event_Incident_Rolling3
+Predictor2       event_Incident_Rolling7
+Predictor3      event_Incident_Rolling15
+Predictor4      event_Incident_Rolling30
+Predictor5    event_Observation_Rolling3
+Predictor6    event_Observation_Rolling7
+Predictor7                           NaN
+Predictor8                           NaN
+Predictor9                           NaN
+Name: 2453, dtype: object"
+2861,West,"Predictor1       event_Incident_Rolling3
+Predictor2       event_Incident_Rolling7
+Predictor3      event_Incident_Rolling15
+Predictor4    event_Observation_Rolling3
+Predictor5    event_Observation_Rolling7
+Predictor6                           NaN
+Predictor7                           NaN
+Predictor8                           NaN
+Predictor9                           NaN
+Name: 2861, dtype: object"
+3717,West,"Predictor1       event_Incident_Rolling3
+Predictor2      event_Incident_Rolling15
+Predictor3    event_Observation_Rolling7
+Predictor4                           NaN
+Predictor5                           NaN
+Predictor6                           NaN
+Predictor7                           NaN
+Predictor8                           NaN
+Predictor9                           NaN
+Name: 3717, dtype: object"
+3449,West,"Predictor1       event_Incident_Rolling7
+Predictor2      event_Incident_Rolling15
+Predictor3    event_Observation_Rolling3
+Predictor4    event_Observation_Rolling7
+Predictor5                           NaN
+Predictor6                           NaN
+Predictor7                           NaN
+Predictor8                           NaN
+Predictor9                           NaN
+Name: 3449, dtype: object"
+3977,West,"Predictor1       event_Incident_Rolling7
+Predictor2    event_Observation_Rolling3
+Predictor3                           NaN
+Predictor4                           NaN
+Predictor5                           NaN
+Predictor6                           NaN
+Predictor7                           NaN
+Predictor8                           NaN
+Predictor9                           NaN
+Name: 3977, dtype: object"
+3805,West,"Predictor1       event_Incident_Rolling7
+Predictor2    event_Observation_Rolling3
+Predictor3    event_Observation_Rolling7
+Predictor4                           NaN
+Predictor5                           NaN
+Predictor6                           NaN
+Predictor7                           NaN
+Predictor8                           NaN
+Predictor9                           NaN
+Name: 3805, dtype: object"
+3513,West,"Predictor1      event_Incident_Rolling15
+Predictor2      event_Incident_Rolling30
+Predictor3    event_Observation_Rolling3
+Predictor4    event_Observation_Rolling7
+Predictor5                           NaN
+Predictor6                           NaN
+Predictor7                           NaN
+Predictor8                           NaN
+Predictor9                           NaN
+Name: 3513, dtype: object"
+3689,West,"Predictor1     event_Incident_Rolling3
+Predictor2     event_Incident_Rolling7
+Predictor3    event_Incident_Rolling30
+Predictor4                         NaN
+Predictor5                         NaN
+Predictor6                         NaN
+Predictor7                         NaN
+Predictor8                         NaN
+Predictor9                         NaN
+Name: 3689, dtype: object"
+3769,West,"Predictor1     event_Incident_Rolling7
+Predictor2    event_Incident_Rolling15
+Predictor3    event_Incident_Rolling30
+Predictor4                         NaN
+Predictor5                         NaN
+Predictor6                         NaN
+Predictor7                         NaN
+Predictor8                         NaN
+Predictor9                         NaN
+Name: 3769, dtype: object"
+3973,West,"Predictor1     event_Incident_Rolling7
+Predictor2    event_Incident_Rolling30
+Predictor3                         NaN
+Predictor4                         NaN
+Predictor5                         NaN
+Predictor6                         NaN
+Predictor7                         NaN
+Predictor8                         NaN
+Predictor9                         NaN
+Name: 3973, dtype: object"
+3993,West,"Predictor1    event_Incident_Rolling15
+Predictor2    event_Incident_Rolling30
+Predictor3                         NaN
+Predictor4                         NaN
+Predictor5                         NaN
+Predictor6                         NaN
+Predictor7                         NaN
+Predictor8                         NaN
+Predictor9                         NaN
+Name: 3993, dtype: object"
