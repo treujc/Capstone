@@ -1,10 +1,10 @@
 import pandas as pd
 import numpy as np
 import os
-from sklearn.model_selection import cross_val_score, cross_val_predict, KFold, train_test_split
+from sklearn.model_selection import cross_val_score, KFold, train_test_split
 from sklearn.ensemble import RandomForestRegressor
 import matplotlib.pyplot as plt
-from pandas.plotting import scatter_matrix
+#from pandas.plotting import scatter_matrix
 
 #file locations
 current_dir = os.path.realpath(".")
@@ -15,7 +15,7 @@ dataheaderfile = os.path.join(data_folder,'CapstoneDataHeaders.csv')
 df_headers = list(pd.read_csv(dataheaderfile))
 df = pd.read_csv(datafile,names = df_headers, low_memory = False)
 #Trim data table
-useful_columns = ['BusinessUnit','eventOccurredDate','event']
+useful_columns = ['BusinessUnit','eventOccurredDatelday','event','eventType']
 df_trimmed = df[useful_columns].reindex(columns = useful_columns)
 #Clean data table
 df_trimmed = df_trimmed[df_trimmed.BusinessUnit.isnull() == False]
@@ -25,18 +25,19 @@ categories = ['event']
 dfBUMatrix = pd.get_dummies(df_trimmed,columns = categories)
 ##Remove Central Support due to only having a few entries.
 dfBUMatrix = dfBUMatrix[dfBUMatrix['BusinessUnit'] != 'Central Support']
-dfBUMatrix['eventOccurredDate'] = pd.to_datetime(df['eventOccurredDate']).dt.date
-dfBUMatrix['eventOccurredDate'] = pd.to_datetime(dfBUMatrix['eventOccurredDate'])
-dfBUMatrix = dfBUMatrix.groupby([dfBUMatrix.eventOccurredDate,dfBUMatrix.BusinessUnit]).sum()
+##Remove Material Releases.
+dfBUMatrix = dfBUMatrix[~dfBUMatrix['eventType'].str.contains('Material Release')]
+dfBUMatrix['eventOccurredDatelday'] = pd.to_datetime(df['eventOccurredDatelday']).dt.date
+dfBUMatrix['eventOccurredDatelday'] = pd.to_datetime(dfBUMatrix['eventOccurredDatelday'])
+dfBUMatrix = dfBUMatrix.groupby([dfBUMatrix.eventOccurredDatelday,dfBUMatrix.BusinessUnit]).sum()
 dfBUMatrix = dfBUMatrix.reset_index()
-dfBUMatrix.sort_values(by = ['eventOccurredDate'])
+dfBUMatrix.sort_values(by = ['eventOccurredDatelday'])
 dfFinal = dfBUMatrix.copy()
 dfFinal = dfFinal.fillna(value = 0)
-dfFinal = dfFinal[(dfFinal['event_Observation'] != 0)]
-dfFinal.rename(columns = {'eventOccurredDate':'DateKey'}, inplace = True)
+#dfFinal = dfFinal[(dfFinal['event_Observation'] != 0)]
+dfFinal.rename(columns = {'eventOccurredDatelday':'DateKey'}, inplace = True)
 dfFinal['WeekDay'] = dfFinal['DateKey'].dt.dayofweek
 dfFinal.reset_index()
-
 
 
 def add_rolling_sums(dfBU,DaysToRollList,DaysToPredict):
@@ -57,26 +58,10 @@ def add_rolling_sums(dfBU,DaysToRollList,DaysToPredict):
     dfBU.reset_index()
     
 
-#def rmse(true, predicted):
-#    '''
-#    Calculates Root Mean Square Error.
-#    
-#    Input: true = Observed values, predicted = Results from model prediction.
-#    
-#    Output: RMSE.
-#    '''
-#    diff = (true - predicted)
-#    sumsq = np.sum(diff**2)
-#    count = diff.shape[0]
-#    result = np.sqrt(sumsq/count)
-#    return result
-
-
-
 if __name__ == '__main__':  
     DaysToRollList = [3,7,14,30,45]
     DaysToPredict = 14
-    figure_size = 5
+    figure_size = 12
     ###Identify Predictors and what I am predicting.
     Predictors = [
                     'WeekDay',
@@ -100,54 +85,75 @@ if __name__ == '__main__':
         add_rolling_sums(dfBU,DaysToRollList,DaysToPredict) 
         MinDate = '1/1/2018'
         dfBU = dfBU[lambda d: d.DateKey >= MinDate]   
-        dfBU = dfBU[lambda d: pd.notnull(d.event_Incident_Prediction_Rolling) == True]
-        #Scatter matrix of correlations.
-#        scatter_matrix(dfBU, alpha=0.4, figsize=(figure_size,figure_size), diagonal='kde')
-#        plt.suptitle('Scatter Matrix for {} BU'.format(BU),fontsize = 12)
+        dfBUModel = dfBU[lambda d: pd.notnull(d.event_Incident_Prediction_Rolling) == True]
+#        #Scatter matrix of correlations.
+#        scatter_matrix(dfBU, alpha=0.4, figsize=(30,30), diagonal='kde')
+#        plt.suptitle('Scatter Matrix for {} BU'.format(BU),fontsize = 8)
 #        plt.show()
-        X = pd.DataFrame(dfBU, columns=Predictors)
-        y = np.ravel(pd.DataFrame(dfBU, columns=To_Predict))
-        model = RandomForestRegressor(n_estimators = 50)#,bootstrap = True)
+        X = pd.DataFrame(dfBUModel, columns=Predictors)
+        y = np.ravel(pd.DataFrame(dfBUModel, columns=To_Predict))
+        model = RandomForestRegressor(n_estimators = 40, random_state = seed)#,bootstrap = True)
         #Do initial Test-Train split.
         X_train, X_test, y_train, y_test = train_test_split(X, y,test_size = .2,random_state = seed)
         results = cross_val_score(model, X_train, y_train, cv=kfold)
-        predicted = cross_val_predict(model, X_train, y_train, cv=kfold)
         r2 = results.mean()
+        model.fit(X_train,y_train)
+        predicted = model.predict(X_test)
+        train_predicted = model.predict(X_train)
         #Scatter plot of Predicted vs Measured.
         plt.figure(figsize= (figure_size,figure_size))
         ax = plt.subplot()
-        ax.scatter(y_train, predicted, edgecolors=(.5,1,0))
+        ax.scatter(y_test, predicted, edgecolors=(.5,1,0))
         ax.plot([y.min(), y.max()], [y.min(), y.max()], 'k--', lw=4)
-        plt.suptitle('Measured vs Predicted, r2: {:.2f}'.format(r2),fontsize = 12)
+        plt.title('Measured vs Predicted, r2: {:.2f}'.format(r2),fontsize = 12)
         ax.set_xlabel('Measured')
         ax.set_ylabel('Predicted')
-        plt.show()
+#        plt.show()
+        filename = 'Presentation/' + BU + 'image1.png'
+        plt.savefig(filename)
+        plt.clf()
         #Plot Feature Importances
-        model.fit(X_train,y_train)
         importances = model.feature_importances_
         indices = np.argsort(importances)
         plt.title('Feature Importances')
         plt.barh(range(len(indices)), importances[indices], color='r', align='center')
         plt.yticks(range(len(indices)), Predictors)
         plt.xlabel('Relative Importance')
-        plt.show()
+#        plt.show()
+        filename = 'Presentation/' + BU + 'image2.png'
+        plt.savefig(filename)
+        plt.clf()
         # The baseline predictions are the historical averages
         baseline_preds = X_test['event_Incident_Rolling14']
         # Baseline errors, and display average baseline error
         baseline_errors = abs(baseline_preds - y_test)
         print('Average baseline error: ', round(np.mean(baseline_errors), 2))
-        # Use the forest's predict method on the test data
-        predictions = model.predict(X_test)
         # Calculate the absolute errors
-        errors = abs(predictions - y_test)
-        # Print out the mean absolute error (mae)
-        print('Mean Absolute Error:', round(np.mean(errors), 2), 'degrees.')
+        errors = abs(predicted - y_test)
+        print('Mean Absolute Error:', round(np.mean(errors), 2))
+#        #Scatter plot of actual values with line of prediction from model.
+        X = pd.DataFrame(dfBU, columns=Predictors)
+        predicted = model.predict(X)
+        fig, ax1 = plt.subplots(figsize= (figure_size,figure_size))
+        color = 'tab:red'
+        ax1.set_xlabel('Date')
+        ax1.set_ylabel('Incidents', color=color)
+        ax1.plot(dfBU['DateKey'], dfBU[To_Predict], 'o', color=color)
+        ax1.tick_params(axis='y', labelcolor=color)
+        color = 'tab:green'
+        ax1.plot(dfBU['DateKey'], predicted, color=color)
+        ax2 = ax1.twinx()  # instantiate a second axes that shares the same x-axis
+        color = 'tab:blue'
+        ax2.set_ylabel('Observations', color=color)  # we already handled the x-label with ax1
+        ax2.plot(dfBU['DateKey'], dfBU['event_Observation_Rolling45'], '-', color=color)
+        ax2.tick_params(axis='y', labelcolor=color)        
+        fig.tight_layout()  # otherwise the right y-label is slightly clipped
+#        plt.show()
+        filename = 'Presentation/' + BU + 'image3.png'
+        fig.savefig(filename)
+        plt.clf()
 
-#Are there different types of Observations? Maybe bucket Spills differently than cuts etc. 
+
+
+#We have excluded "Material Release" from the dataset. 
 #Consider Poisson Regression. #Seems very difficult to implement. Add this as a how to possibly improve note.
-        
-        
-    
-    
-
-
