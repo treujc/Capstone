@@ -4,6 +4,7 @@ import os
 from sklearn.model_selection import cross_val_score, KFold, train_test_split
 from sklearn.ensemble import RandomForestRegressor
 import matplotlib.pyplot as plt
+from matplotlib.offsetbox import AnchoredText
 #from pandas.plotting import scatter_matrix
 
 #file locations
@@ -37,6 +38,8 @@ dfFinal = dfFinal.fillna(value = 0)
 #dfFinal = dfFinal[(dfFinal['event_Observation'] != 0)]
 dfFinal.rename(columns = {'eventOccurredDatelday':'DateKey'}, inplace = True)
 dfFinal['WeekDay'] = dfFinal['DateKey'].dt.dayofweek
+#MaxDate = '5/30/2018'
+#dfFinal = dfFinal[lambda d: d.DateKey < MaxDate] 
 dfFinal.reset_index()
 
 
@@ -61,7 +64,8 @@ def add_rolling_sums(dfBU,DaysToRollList,DaysToPredict):
 if __name__ == '__main__':  
     DaysToRollList = [3,7,14,30,45]
     DaysToPredict = 14
-    figure_size = 12
+    figure_size_l = 8.5
+    figure_size_w = figure_size_l/.77
     ###Identify Predictors and what I am predicting.
     Predictors = [
                     'WeekDay',
@@ -94,20 +98,34 @@ if __name__ == '__main__':
         y = np.ravel(pd.DataFrame(dfBUModel, columns=To_Predict))
         model = RandomForestRegressor(n_estimators = 40, random_state = seed)#,bootstrap = True)
         #Do initial Test-Train split.
-        X_train, X_test, y_train, y_test = train_test_split(X, y,test_size = .2,random_state = seed)
+        X_train, X_test, y_train, y_test = train_test_split(X, y,test_size = .2,random_state = seed, shuffle = True)
         results = cross_val_score(model, X_train, y_train, cv=kfold)
         r2 = results.mean()
         model.fit(X_train,y_train)
         predicted = model.predict(X_test)
         train_predicted = model.predict(X_train)
+        # The baseline predictions are the historical averages
+        baseline_preds = X_test['event_Incident_Rolling14']
+        # Baseline errors, and display average baseline error
+        baseline_errors = abs(baseline_preds - y_test)
+#        print('Average baseline error: ', round(np.mean(baseline_errors), 2))
+        # Calculate the absolute errors
+        errors = abs(predicted - y_test)
+#        print('Mean Absolute Error:', round(np.mean(errors), 2))
         #Scatter plot of Predicted vs Measured.
-        plt.figure(figsize= (figure_size,figure_size))
+        plt.figure(figsize= (figure_size_w,figure_size_l))
         ax = plt.subplot()
         ax.scatter(y_test, predicted, edgecolors=(.5,1,0))
-        ax.plot([y.min(), y.max()], [y.min(), y.max()], 'k--', lw=4)
-        plt.title('Measured vs Predicted, r2: {:.2f}'.format(r2),fontsize = 12)
-        ax.set_xlabel('Measured')
-        ax.set_ylabel('Predicted')
+        ax.plot([y.min(), y.max()], [y.min(), y.max()], 'k--', lw=3)
+        plt.title('{} BU Measured vs Predicted'.format(BU),fontsize = 14)
+        anchored_text = AnchoredText('R-squared = {:.2f}\nAverage baseline error: {:.2f}\nMean Absolute Error: {:.2f}'.format(r2,np.mean(baseline_errors),np.mean(errors)), loc=2,prop=dict(size=14))
+        ax.add_artist(anchored_text)
+#        ax.text(1, 13,'R-squared = {:.2f}'.format(r2), fontsize=14)
+#        ax.text(1, 12.5,'Average baseline error: {:.2f}'.format(np.mean(baseline_errors)), fontsize=14) 
+#        ax.text(1, 12,'Mean Absolute Error: {:.2f}'.format(np.mean(errors)), fontsize=14) 
+        ax.set_xlabel('Measured', fontsize=14)
+        ax.set_ylabel('Predicted', fontsize=14)
+        plt.tight_layout()
 #        plt.show()
         filename = 'Presentation/' + BU + 'image1.png'
         plt.savefig(filename)
@@ -115,43 +133,46 @@ if __name__ == '__main__':
         #Plot Feature Importances
         importances = model.feature_importances_
         indices = np.argsort(importances)
-        plt.title('Feature Importances')
+        plt.title('{} BU Feature Importances'.format(BU))
         plt.barh(range(len(indices)), importances[indices], color='r', align='center')
+        plt.rc('ytick', labelsize=8)
         plt.yticks(range(len(indices)), Predictors)
         plt.xlabel('Relative Importance')
+        plt.tight_layout()
 #        plt.show()
         filename = 'Presentation/' + BU + 'image2.png'
         plt.savefig(filename)
         plt.clf()
-        # The baseline predictions are the historical averages
-        baseline_preds = X_test['event_Incident_Rolling14']
-        # Baseline errors, and display average baseline error
-        baseline_errors = abs(baseline_preds - y_test)
-        print('Average baseline error: ', round(np.mean(baseline_errors), 2))
-        # Calculate the absolute errors
-        errors = abs(predicted - y_test)
-        print('Mean Absolute Error:', round(np.mean(errors), 2))
 #        #Scatter plot of actual values with line of prediction from model.
         X = pd.DataFrame(dfBU, columns=Predictors)
         predicted = model.predict(X)
-        fig, ax1 = plt.subplots(figsize= (figure_size,figure_size))
-        color = 'tab:red'
+        fig, ax1 = plt.subplots(figsize= (figure_size_w,figure_size_l))
+        plt.title('{} BU Summary'.format(BU))
+        color = 'red'
         ax1.set_xlabel('Date')
         ax1.set_ylabel('Incidents', color=color)
-        ax1.plot(dfBU['DateKey'], dfBU[To_Predict], 'o', color=color)
+        ax1.plot(dfBU['DateKey'], dfBU[To_Predict], 'o', color=color, label='Forward Rolling 14 Day Incident Count')
         ax1.tick_params(axis='y', labelcolor=color)
-        color = 'tab:green'
-        ax1.plot(dfBU['DateKey'], predicted, color=color)
+        ax1.plot(np.nan, '-b', label = 'Backwards Rolling 45 Day Oberservation Count')
+        ax1.legend(loc='best')
+        color = 'darkgreen'
+        ax1.plot(dfBU['DateKey'], predicted, color=color, label='Model Prediction')
+        ax1.legend(loc='best')
         ax2 = ax1.twinx()  # instantiate a second axes that shares the same x-axis
-        color = 'tab:blue'
+        color = 'b'
         ax2.set_ylabel('Observations', color=color)  # we already handled the x-label with ax1
-        ax2.plot(dfBU['DateKey'], dfBU['event_Observation_Rolling45'], '-', color=color)
-        ax2.tick_params(axis='y', labelcolor=color)        
+        ax2.plot(dfBU['DateKey'], dfBU['event_Observation_Rolling45'], '-', color=color, label='Backwards Rolling 45 Day Oberservation Count')
+        ax2.tick_params(axis='y', labelcolor=color)  
         fig.tight_layout()  # otherwise the right y-label is slightly clipped
 #        plt.show()
         filename = 'Presentation/' + BU + 'image3.png'
         fig.savefig(filename)
         plt.clf()
+#        #Used below code to output resutls for simulation verification.
+#        results = pd.DataFrame(dfBU, columns=['BusinessUnit','DateKey','event_Incident_Prediction_Rolling'])
+#        predicted = pd.Series(predicted)
+#        results['event_Incident_Prediction_Rolling_Prediction'] = predicted.values
+#        results.to_csv('results2.csv', mode='a', header=False)
 
 
 
