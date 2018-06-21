@@ -1,7 +1,15 @@
 import pandas as pd
-import numpy as np
 import os
 import matplotlib.pyplot as plt
+import matplotlib as mpl
+mpl.rcParams.update({
+    'font.size'           : 16.0,
+    'axes.titlesize'      : 'large',
+    'axes.labelsize'      : 'medium',
+    'xtick.labelsize'     : 'medium',
+    'ytick.labelsize'     : 'medium',
+    'legend.fontsize'     : 'large',
+})
 
 
 current_dir = os.path.realpath(".")
@@ -24,6 +32,7 @@ color = 'darkgreen'
 ax1.plot(df['DateKey'], df['Prediction'], color=color, label='Model Prediction')
 ax1.legend(loc='best') 
 fig.autofmt_xdate()
+ax1.xaxis.set_major_locator(plt.MaxNLocator(7))
 fig.tight_layout()  # otherwise the right y-label is slightly clipped
 #        plt.show()
 filename = 'Presentation/Eastimage4.png'

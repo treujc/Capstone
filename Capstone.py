@@ -5,6 +5,16 @@ from sklearn.model_selection import cross_val_score, KFold, train_test_split
 from sklearn.ensemble import RandomForestRegressor
 import matplotlib.pyplot as plt
 from matplotlib.offsetbox import AnchoredText
+import matplotlib as mpl
+mpl.rcParams.update({
+    'font.size'           : 16.0,
+    'axes.titlesize'      : 'large',
+    'axes.labelsize'      : 'medium',
+    'xtick.labelsize'     : 'medium',
+    'ytick.labelsize'     : 'medium',
+    'legend.fontsize'     : 'large',
+})
+
 #from pandas.plotting import scatter_matrix
 
 #file locations
@@ -117,14 +127,14 @@ if __name__ == '__main__':
         ax = plt.subplot()
         ax.scatter(y_test, predicted, edgecolors=(.5,1,0))
         ax.plot([y.min(), y.max()], [y.min(), y.max()], 'k--', lw=3)
-        plt.title('{} BU Measured vs Predicted'.format(BU),fontsize = 14)
-        anchored_text = AnchoredText('R-squared = {:.2f}\nAverage baseline error: {:.2f}\nMean Absolute Error: {:.2f}'.format(r2,np.mean(baseline_errors),np.mean(errors)), loc=2,prop=dict(size=14))
+        plt.title('{} BU Measured vs Predicted'.format(BU))#,fontsize = 14)
+        anchored_text = AnchoredText('R-squared = {:.2f}\nAverage baseline error: {:.2f}\nMean Absolute Error: {:.2f}'.format(r2,np.mean(baseline_errors),np.mean(errors)), loc=2,prop=dict(size=16))
         ax.add_artist(anchored_text)
 #        ax.text(1, 13,'R-squared = {:.2f}'.format(r2), fontsize=14)
 #        ax.text(1, 12.5,'Average baseline error: {:.2f}'.format(np.mean(baseline_errors)), fontsize=14) 
 #        ax.text(1, 12,'Mean Absolute Error: {:.2f}'.format(np.mean(errors)), fontsize=14) 
-        ax.set_xlabel('Measured', fontsize=14)
-        ax.set_ylabel('Predicted', fontsize=14)
+        ax.set_xlabel('Measured')#, fontsize=14)
+        ax.set_ylabel('Predicted')#, fontsize=14)
         plt.tight_layout()
 #        plt.show()
         filename = 'Presentation/' + BU + 'image1.png'
@@ -135,7 +145,7 @@ if __name__ == '__main__':
         indices = np.argsort(importances)
         plt.title('{} BU Feature Importances'.format(BU))
         plt.barh(range(len(indices)), importances[indices], color='r', align='center')
-        plt.rc('ytick', labelsize=8)
+        plt.rc('ytick')#, labelsize=8)
         plt.yticks(range(len(indices)), Predictors)
         plt.xlabel('Relative Importance')
         plt.tight_layout()
@@ -157,7 +167,7 @@ if __name__ == '__main__':
         ax1.legend(loc='best')
         color = 'darkgreen'
         ax1.plot(dfBU['DateKey'], predicted, color=color, label='Model Prediction')
-        ax1.legend(loc='best')
+        ax1.legend(loc='lower right')
         ax2 = ax1.twinx()  # instantiate a second axes that shares the same x-axis
         color = 'b'
         ax2.set_ylabel('Observations', color=color)  # we already handled the x-label with ax1
