@@ -164,10 +164,10 @@ if __name__ == '__main__':
         ax1.plot(dfBU['DateKey'], dfBU[To_Predict], 'o', color=color, label='Forward Rolling 14 Day Incident Count')
         ax1.tick_params(axis='y', labelcolor=color)
         ax1.plot(np.nan, '-b', label = 'Backwards Rolling 45 Day Oberservation Count')
-        ax1.legend(loc='best')
+#        ax1.legend(loc='best')
         color = 'darkgreen'
         ax1.plot(dfBU['DateKey'], predicted, color=color, label='Model Prediction')
-        ax1.legend(loc='lower right')
+        ax1.legend(loc='lower right',fontsize = 14)
         ax2 = ax1.twinx()  # instantiate a second axes that shares the same x-axis
         color = 'b'
         ax2.set_ylabel('Observations', color=color)  # we already handled the x-label with ax1
